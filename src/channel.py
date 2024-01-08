@@ -18,11 +18,15 @@ class Channel:
         self.video_count: int = self.print_info()['statistics']['videoCount']
         self.view_count: int = self.print_info()['statistics']['viewCount']
 
+    @property
+    def channel_id(self) -> str:
+        return self.__channel_id
+
     def print_info(self) -> None:
         """Выводит в консоль информацию о канале."""
         # print(Channel.api_key)
         youtube = build('youtube', 'v3', developerKey=Channel.api_key)
-        channel = youtube.channels().list(id=self.__channel_id, part='snippet,statistics').execute()
+        channel = youtube.channels().list(id=self.channel_id, part='snippet,statistics').execute()
         channel = channel['items'][0]
         return channel
 
@@ -34,7 +38,8 @@ class Channel:
 
     def to_json(self, file_name: str) -> None:
         """Сохранить данные в файл."""
-        write_json = self.__channel_id + ' ' + self.title + ' ' + self.description + ' ' + self.url + ' ' + str(
-            self.subscriber_count) + " " + str(self.video_count) + ' ' + str(self.view_count)
+        channel_info = {'channel_id': self.channel_id, 'title': self.title, 'description': self.description,
+                        'url': self.url, 'subscriber_count': self.subscriber_count, 'video_count': self.video_count,
+                        'view_count': self.view_count}
         with open(file_name, 'w', encoding='utf=8') as f:
-            json.dump(write_json, f, ensure_ascii=False)
+            json.dump(channel_info, f, ensure_ascii=False)
